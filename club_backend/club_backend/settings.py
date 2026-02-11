@@ -11,9 +11,12 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
+import os
+import dj_database_url
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+DATABASE_URL = "postgres://u6j3k3tk37eljm:pff7ed7d6742283a58d417373720a43256f79e28826368a9724141b5f0826908f@cet8gijgk7sjl9.cluster-czrs8kj4isg7.us-east-1.rds.amazonaws.com:5432/d1dv3ia22bgiuv"
 
 
 # Quick-start development settings - unsuitable for production
@@ -76,8 +79,10 @@ WSGI_APPLICATION = 'club_backend.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        "default": dj_database_url.config(
+        default=os.getenv("DATABASE_URL"),
+        conn_max_age=600,
+        ssl_require=True,
     }
 }
 
@@ -122,3 +127,17 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+REST_FRAMEWORK = {
+    "DEFAULT_PARSER_CLASSES": (
+        "rest_framework.parsers.JSONParser",
+        "rest_framework.parsers.FormParser",
+        "rest_framework.parsers.MultiPartParser",
+    ),
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.AllowAny',
+    ]
+}

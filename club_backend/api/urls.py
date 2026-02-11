@@ -1,17 +1,19 @@
 from django.contrib import admin
 from django.urls import path, include
-from .views import ApplicationView, ClubView, QuestionView, ApplicantView, ApplicantAnswerView, ApplicantSubmissionView
+from .views import ApplicationView, ClubView, QuestionView, ApplicantView, ApplicantAnswerView, ApplicantSubmissionView, RegisterView, UserView, ApplicantsCreateView
 from rest_framework_nested import routers
+from rest_framework_simplejwt.views import (
+    TokenObtainPairView,
+    TokenRefreshView,
+)
 
 """ Valid endpoint:
 /club/{id}/application/{id}/applicant/{id}
 /club{id}/application{id}/question/{id}
 /submission/{id}/answers
-/applicant/{id}
+/applicants/{id}
 """
 
-urlpatterns = [
-]
 router = routers.DefaultRouter(trailing_slash=False)
 router.register('club', ClubView)
 router.register('submission', ApplicantSubmissionView)
@@ -35,4 +37,12 @@ urlpatterns = [
     path('', include(app_router.urls)),
     path('', include(submission_router.urls)),
     path('', include(question_router.urls)),
+    path('login/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    #path('users/', UserView.as_view(), name='user-view'),
+    path("users/", UserView.as_view(), name="user-detail"),
+    path('applicants/', ApplicantsCreateView.as_view(), name='applicant-creation')
+]
+
+urlpatterns += [
+    path("register/", RegisterView.as_view(), name="register"),
 ]

@@ -1,6 +1,34 @@
 from rest_framework import serializers
 from .models import ClubModel, ApplicantModel, ApplicationFormModel, ApplicationQuestionModel, ApplicationSubmissionModel, ApplicationAnswerModel
 ApplicationQuestionModel, ApplicationAnswerModel
+from django.contrib.auth.models import User
+
+from django.contrib.auth.models import User
+from rest_framework import serializers
+
+class RegisterSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(write_only=True, min_length=8)
+
+    class Meta:
+        model = User
+        fields = ("username", "email", "password")
+
+    def validate_username(self, value):
+        if User.objects.filter(username=value).exists():
+            raise serializers.ValidationError("Username already taken.")
+        return value
+
+    def validate_email(self, value):
+        if value and User.objects.filter(email=value).exists():
+            raise serializers.ValidationError("Email already in use.")
+        return value
+
+    def create(self, validated_data):
+        return User.objects.create_user(
+            username=validated_data["username"],
+            email=validated_data.get("email", ""),
+            password=validated_data["password"],
+        )
 
 class ClubSerializer(serializers.ModelSerializer):
     class Meta:
@@ -48,7 +76,7 @@ class ApplicantSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = ApplicantModel
-        fields = fields = [
+        fields = [
             'id', 
             'first_name', 
             'last_name', 
@@ -61,3 +89,25 @@ class ApplicantSerializer(serializers.ModelSerializer):
             'submission'
         ]
         read_only_fields = ['pass_apps','pass_first','pass_second']
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['username', 'email', 'password']
+
+    def create(self, validated_data):
+        password = validated_data.pop("password", None)
+        user = User(**validated_data)
+        if password:
+            user.set_password(password)
+        user.save()
+        return user
+
+    def update(self, instance, validated_data):
+        password = validated_data.pop("password", None)
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        if password:
+            instance.set_password(password)
+        instance.save()
+        return instance
