@@ -28,7 +28,7 @@ SECRET_KEY = 'django-insecure-v9rxjkg^slv3_w$^p^8l)zaqocxaffua&o34s8zpu!%-c2ht+3
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
 
 
 # Application definition
@@ -46,6 +46,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -77,13 +78,23 @@ WSGI_APPLICATION = 'club_backend.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
+"""DATABASES = {
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": "d1dv3ia22bgiuv",
+        "USER": "u6j3k3tk37eljm",
+        "PASSWORD": "pff7ed7d6742283a58d417373720a43256f79e28826368a9724141b5f0826908f",
+        "HOST": "cet8gijgk7sjl9.cluster-czrs8kj4isg7.us-east-1.rds.amazonaws.com",
+        "PORT": "5432",
+    }
+}"""
+
 DATABASES = {
-    'default': {
-        "default": dj_database_url.config(
-        default=os.getenv("DATABASE_URL"),
+    "default": dj_database_url.config(
+        default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}",
         conn_max_age=600,
         ssl_require=True,
-    }
+    )
 }
 
 
@@ -122,6 +133,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
 STATIC_URL = 'static/'
+STATIC_ROOT = BASE_DIR / "staticfiles"
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
