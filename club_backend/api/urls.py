@@ -9,7 +9,7 @@ from rest_framework_simplejwt.views import (
 
 """ Valid endpoint:
 /club/{id}/application/{id}/applicant/{id}
-/club{id}/application{id}/question/{id}
+/club/{id}/application/{id}/question/{id}
 /submission/{id}/answers
 /applicants/{id}
 """
@@ -29,7 +29,7 @@ question_router = routers.NestedSimpleRouter(club_router, 'application', lookup=
 question_router.register('question', QuestionView, basename='application-questions')
 
 submission_router = routers.NestedSimpleRouter(router, 'submission', lookup='submission')
-submission_router.register('answer', ApplicantAnswerView, basename='submission-answers')
+submission_router.register('answers', ApplicantAnswerView, basename='submission-answers')
 
 urlpatterns = [
     path('', include(router.urls)),
@@ -38,6 +38,7 @@ urlpatterns = [
     path('', include(submission_router.urls)),
     path('', include(question_router.urls)),
     path('login/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('login/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     #path('users/', UserView.as_view(), name='user-view'),
     path("users/", UserView.as_view(), name="user-detail"),
     path('applicants/', ApplicantsCreateView.as_view(), name='applicant-creation')

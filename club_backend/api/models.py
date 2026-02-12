@@ -5,7 +5,6 @@ from django.db.models import CASCADE
 
 class ClubModel(models.Model):
     name = models.CharField(max_length=100)
-    club_id = models.CharField(max_length=100)
 
     def __str__(self):
         return self.name
@@ -31,10 +30,24 @@ class ApplicantModel(models.Model):
     pass_first = models.BooleanField(default=False)
     pass_second = models.BooleanField(default=False)
     club_association = models.ForeignKey(ClubModel, on_delete=CASCADE)
+    application = models.ForeignKey(ApplicationFormModel, on_delete=CASCADE, null=True, blank=True)
 
     def __str__(self):
         return self.first_name + " " + self.last_name
 
+class ProfileModel(models.Model):
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="profile", 
+    )
+    club = models.ForeignKey(
+        ClubModel,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="members",
+    )
 class ApplicationQuestionModel(models.Model):
     TYPE_CHOICES = [
         ('Short', 'SHORT'), ('Long', 'LONG'), ('Multi-Select', 'MULTI-SELECT'), ('File', 'FILE')
@@ -48,12 +61,14 @@ class ApplicationQuestionModel(models.Model):
         return self.prompt
 
 class ApplicationSubmissionModel(models.Model):
+    # Use string-based choices so the default is valid
     STATUS_CHOICES = [
-        (1, 'Draft'), (2, 'Submitted')
+        ('Draft', 'Draft'),
+        ('Submitted', 'Submitted'),
     ]
     form = models.ForeignKey(ApplicationFormModel, on_delete=CASCADE)
     applicant = models.OneToOneField(ApplicantModel, on_delete=CASCADE, related_name="submission")
-    status = models.CharField(max_length=100, choices=STATUS_CHOICES, default="Draft")
+    status = models.CharField(max_length=100, choices=STATUS_CHOICES, default='Draft')
 
 
     class Meta:

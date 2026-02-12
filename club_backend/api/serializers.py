@@ -1,17 +1,19 @@
 from rest_framework import serializers
-from .models import ClubModel, ApplicantModel, ApplicationFormModel, ApplicationQuestionModel, ApplicationSubmissionModel, ApplicationAnswerModel
-ApplicationQuestionModel, ApplicationAnswerModel
+from .models import ClubModel, ApplicantModel, ApplicationFormModel, ApplicationQuestionModel, ApplicationSubmissionModel, ApplicationAnswerModel, ProfileModel
 from django.contrib.auth.models import User
-
-from django.contrib.auth.models import User
-from rest_framework import serializers
 
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, min_length=8)
+    club = serializers.PrimaryKeyRelatedField(
+        queryset=ClubModel.objects.all(),
+        write_only=True,
+        required=True,
+        allow_null=False,
+    )
 
     class Meta:
         model = User
-        fields = ("username", "email", "password")
+        fields = ("username", "email", "password", "club")
 
     def validate_username(self, value):
         if User.objects.filter(username=value).exists():
@@ -24,16 +26,23 @@ class RegisterSerializer(serializers.ModelSerializer):
         return value
 
     def create(self, validated_data):
-        return User.objects.create_user(
+        club = validated_data.pop("club")
+        user = User.objects.create_user(
             username=validated_data["username"],
             email=validated_data.get("email", ""),
             password=validated_data["password"],
         )
+        # Create or update profile with associated club
+        ProfileModel.objects.update_or_create(
+            user=user,
+            defaults={"club": club},
+        )
+        return user
 
 class ClubSerializer(serializers.ModelSerializer):
     class Meta:
         model = ClubModel
-        fields = ['name', 'club_id', 'id']
+        fields = ['name', 'id']
 
 class ApplicationFormQuestionSerializer(serializers.ModelSerializer):
     class Meta:
@@ -86,14 +95,19 @@ class ApplicantSerializer(serializers.ModelSerializer):
             'pass_second', 
             'club_association', 
             'application_id', 
-            'submission'
+            'submission',
+            'application',
         ]
         read_only_fields = ['pass_apps','pass_first','pass_second']
 
 class UserSerializer(serializers.ModelSerializer):
+    club = serializers.PrimaryKeyRelatedField(
+        source="profile.club",
+        read_only=True
+    )
     class Meta:
         model = User
-        fields = ['username', 'email', 'password']
+        fields = ['username', 'email', 'password', 'club']
 
     def create(self, validated_data):
         password = validated_data.pop("password", None)
@@ -111,3 +125,8 @@ class UserSerializer(serializers.ModelSerializer):
             instance.set_password(password)
         instance.save()
         return instance
+class ProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProfileModel
+        fields = ['club', 'user']
+        read_only_fields = ['user']
