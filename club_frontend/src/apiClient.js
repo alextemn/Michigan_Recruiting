@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // Base Axios instance for the Django API
 const api = axios.create({
-  baseURL: 'http://127.0.0.1:8000/api/',
+  baseURL: 'https://club-applications-d42c9d50a2b6.herokuapp.com/api/',
 });
 
 // Attach JWT access token if present
