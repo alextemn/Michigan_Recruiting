@@ -2,12 +2,9 @@ Django==5.2.10
 djangorestframework==3.16.1
 djangorestframework-simplejwt==5.5.1
 dj-database-url==3.1.0
-gunicorn==25.0.3
 psycopg2-binary==2.9.11
+gunicorn==25.0.3
 whitenoise==6.11.0
 django-cors-headers==4.9.0
 django-filter==25.2
-dj-rest-auth==7.0.2
-django-allauth==65.14.0
 drf-nested-routers==0.95.0
-django-rest-auth==2.2.0
