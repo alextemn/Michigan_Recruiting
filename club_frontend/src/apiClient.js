@@ -1,12 +1,13 @@
 import axios from 'axios';
 
 // API base URL: set VITE_API_URL in .env.local for dev (e.g. http://127.0.0.1:8000/api)
-// Vercel: set VITE_API_URL=https://club-applications-d42c9d50a2b6.herokuapp.com/api in project env
-const baseURL = import.meta.env.VITE_API_URL || 'https://club-applications-d42c9d50a2b6.herokuapp.com/api/';
+// Vercel: can set VITE_API_URL to full API URL or root (e.g. https://club-applications-d42c9d50a2b6.herokuapp.com)
+const raw = import.meta.env.VITE_API_URL || 'https://club-applications-d42c9d50a2b6.herokuapp.com/api/';
+const baseURL = raw.replace(/\/?$/, '').endsWith('api')
+  ? (raw.endsWith('/') ? raw : `${raw}/`)
+  : `${raw.replace(/\/?$/, '')}/api/`;
 
-const api = axios.create({
-  baseURL: baseURL.endsWith('/') ? baseURL : `${baseURL}/`,
-});
+const api = axios.create({ baseURL });
 
 // Attach JWT access token if present
 api.interceptors.request.use((config) => {
