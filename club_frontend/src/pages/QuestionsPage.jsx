@@ -58,6 +58,19 @@ export default function QuestionsPage() {
     }
   };
 
+  const handleDeleteQuestion = async (questionId) => {
+    // eslint-disable-next-line no-alert
+    const ok = window.confirm('Are you sure you want to delete this question? This cannot be undone.');
+    if (!ok) return;
+    try {
+      setError('');
+      await api.delete(`club/${clubId}/application/${applicationId}/question/${questionId}`);
+      setQuestions((prev) => prev.filter((q) => q.id !== questionId));
+    } catch (err) {
+      setError('Failed to delete question. Please try again.');
+    }
+  };
+
   return (
     <div className="page">
       <div className="page-header">
@@ -99,6 +112,7 @@ export default function QuestionsPage() {
                 <th>Prompt</th>
                 <th>Type</th>
                 <th>Required</th>
+                <th />
               </tr>
             </thead>
             <tbody>
@@ -108,6 +122,14 @@ export default function QuestionsPage() {
                   <td>{q.prompt}</td>
                   <td>{q.question_type}</td>
                   <td>{q.required ? 'Yes' : 'No'}</td>
+                  <td>
+                    <button
+                      type="button"
+                      onClick={() => handleDeleteQuestion(q.id)}
+                    >
+                      Delete
+                    </button>
+                  </td>
                 </tr>
               ))}
             </tbody>

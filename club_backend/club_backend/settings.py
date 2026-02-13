@@ -187,11 +187,17 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
     "http://127.0.0.1:5173",
     "https://michigan-recruiting.vercel.app",
+    "https://michigan-recruiting-25ntvhdtp-alextemns-projects.vercel.app",
 ]
 if os.environ.get("CORS_ALLOWED_ORIGINS"):
     CORS_ALLOWED_ORIGINS.extend(
         o.strip() for o in os.environ["CORS_ALLOWED_ORIGINS"].split(",") if o.strip()
     )
+
+# Allow all Vercel deployment URLs (production + preview branches)
+CORS_ALLOWED_ORIGIN_REGEXES = [
+    r"^https://[\w-]+\.vercel\.app$",
+]
 
 CORS_ALLOW_CREDENTIALS = True
 
