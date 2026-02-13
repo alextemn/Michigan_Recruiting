@@ -16,19 +16,30 @@ import dj_database_url
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-DATABASE_URL = "postgres://u7l1ptv367e1lo:pf7b4a5f34752ca09d2f63ca7a96798bfc0859f1714bf40fee46e1e91c8779ff8@chepvbj2ergru.cluster-czrs8kj4isg7.us-east-1.rds.amazonaws.com:5432/db99nrqfqr2klm"
 
+# Read from environment (Heroku sets DATABASE_URL; use .env or set locally for dev)
+DATABASE_URL = os.environ.get("DATABASE_URL")
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-v9rxjkg^slv3_w$^p^8l)zaqocxaffua&o34s8zpu!%-c2ht+3'
+SECRET_KEY = os.environ.get(
+    "DJANGO_SECRET_KEY",
+    "django-insecure-dev-key-change-in-production",
+)
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get("DEBUG", "true").lower() in ("1", "true", "yes")
 
-ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = [
+    "localhost",
+    "127.0.0.1",
+    ".herokuapp.com",
+    "club-applications-d42c9d50a2b6.herokuapp.com",
+]
+if os.environ.get("ALLOWED_HOSTS"):
+    ALLOWED_HOSTS.extend(h.strip() for h in os.environ["ALLOWED_HOSTS"].split(",") if h.strip())
 
 
 # Application definition

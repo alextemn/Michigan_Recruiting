@@ -1,8 +1,11 @@
 import axios from 'axios';
 
-// Base Axios instance for the Django API
+// API base URL: set VITE_API_URL in .env.local for dev (e.g. http://127.0.0.1:8000/api)
+// Vercel: set VITE_API_URL=https://club-applications-d42c9d50a2b6.herokuapp.com/api in project env
+const baseURL = import.meta.env.VITE_API_URL || 'https://club-applications-d42c9d50a2b6.herokuapp.com/api/';
+
 const api = axios.create({
-  baseURL: 'https://club-applications-d42c9d50a2b6.herokuapp.com/api/',
+  baseURL: baseURL.endsWith('/') ? baseURL : `${baseURL}/`,
 });
 
 // Attach JWT access token if present
@@ -37,10 +40,8 @@ api.interceptors.response.use(
         }
 
         // Use a bare axios instance to avoid interceptor recursion
-        const refreshResponse = await axios.post(
-          'http://127.0.0.1:8000/api/login/refresh/',
-          { refresh: refreshToken },
-        );
+        const refreshUrl = `${api.defaults.baseURL.replace(/\/?$/, '')}/login/refresh/`;
+        const refreshResponse = await axios.post(refreshUrl, { refresh: refreshToken });
 
         const newAccessToken = refreshResponse.data.access;
         window.localStorage.setItem('accessToken', newAccessToken);
