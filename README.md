@@ -122,3 +122,10 @@ See **[DEPLOY.md](DEPLOY.md)** for:
 ## License
 
 Private / unlicensed unless otherwise specified.
+
+---
+
+## Next Steps
+
+Higher level of security for club creation. Createing an admin user per club to approve new user sign ups associated with their club. 
+
