@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { useParams } from 'react-router-dom';
 import api from '../apiClient';
 
@@ -6,6 +6,7 @@ const QUESTION_TYPES = ['Short', 'Long', 'Multi-Select', 'File'];
 
 export default function QuestionsPage() {
   const { clubId, applicationId } = useParams();
+  const appIdNum = Number(applicationId);
   const [questions, setQuestions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -15,13 +16,20 @@ export default function QuestionsPage() {
   const [required, setRequired] = useState(true);
   const [creating, setCreating] = useState(false);
 
+  // Only show questions that belong to this application
+  const questionsForThisApp = useMemo(
+    () => questions.filter((q) => Number(q.form) === appIdNum),
+    [questions, appIdNum],
+  );
+
   useEffect(() => {
     const loadQuestions = async () => {
       try {
         setError('');
         setLoading(true);
         const res = await api.get(`club/${clubId}/application/${applicationId}/question`);
-        setQuestions(res.data);
+        const data = Array.isArray(res.data) ? res.data : [];
+        setQuestions(data);
       } catch (err) {
         setError('Failed to load questions for this application.');
       } finally {
@@ -47,7 +55,10 @@ export default function QuestionsPage() {
         `club/${clubId}/application/${applicationId}/question`,
         payload,
       );
-      setQuestions((prev) => [...prev, res.data]);
+      const added = res.data;
+      setQuestions((prev) =>
+        Number(added.form) === appIdNum ? [...prev, added] : prev,
+      );
       setPrompt('');
       setQuestionType('Short');
       setRequired(true);
@@ -102,7 +113,7 @@ export default function QuestionsPage() {
         {error && <p className="error-text">{error}</p>}
         {loading ? (
           <p className="muted">Loading questions…</p>
-        ) : questions.length === 0 ? (
+        ) : questionsForThisApp.length === 0 ? (
           <p className="muted">No questions yet. Add one below.</p>
         ) : (
           <table className="table">
@@ -116,7 +127,7 @@ export default function QuestionsPage() {
               </tr>
             </thead>
             <tbody>
-              {questions.map((q) => (
+              {questionsForThisApp.map((q) => (
                 <tr key={q.id}>
                   <td>{q.id}</td>
                   <td>{q.prompt}</td>
