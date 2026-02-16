@@ -1,1 +1,4 @@
 .DS_Store
+
+# Django settings (may contain secrets)
+club_backend/club_backend/settings.py
