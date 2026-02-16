@@ -127,5 +127,5 @@ Private / unlicensed unless otherwise specified.
 
 ## Next Steps
 
-Higher level of security for club creation. Createing an admin user per club to approve new user sign ups associated with their club. 
+Higher level of security for club creation. Createing an admin user per club to approve new user sign ups associated with their club, and delete clubs tab in dashboard (meant for dev use). Complete taking files, buggy now and gets added to local database instead of Heroku. 
 
